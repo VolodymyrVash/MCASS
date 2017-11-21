@@ -4,13 +4,11 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
-using UnityEngine;
-using UnityEngine.UI;
 using Gurock.TestRail;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using NUnit.Framework;
-using Assert = UnityEngine.Assertions.Assert;
+using UnityEngine;
+using UnityEngine.UI;
 
 public class TestSuite : UITest
 {
@@ -38,10 +36,20 @@ public class TestSuite : UITest
         return isOk;
     }
 
+#if UNITY_EDITOR
+    public static string deviceModel = "Unity";
+#elif UNITY_ANDROID
+    public static string deviceModel = SystemInfo.deviceModel;
+#elif UNITY_IOS
+    public static string deviceModel = SystemInfo.deviceModel;
+#endif
+
     public static string testRunName;
 
     public static String caseID;
     public static String testrunID;
+
+    
 
     public class TestRun
     {
@@ -91,18 +99,19 @@ public class TestSuite : UITest
 
             var data = new Dictionary<string, object>
             {
-                { "name", "Automation Test Run" },
+                { "name", "Automation_Test_Run_DATE_"+ deviceModel },
                 { "suite_id", 369 },
             };
 
-            JContainer jContainer = (JContainer)client.SendPost("add_run/2", data); //Стопарит на этой строчке
+            Debug.Log(data);
+            var jContainer =  client.SendPost("add_run/2", data);
 
             var response = client.SendGet("get_runs/2&is_completed=0").ToString();
 
             var array = JsonConvert.DeserializeObject<List<TestRun>>(response);
 
             var InArray = array[0];
-            testRunName = InArray.name;
+            testRunName = InArray.name +"_"+ deviceModel;
         }
 
         //Выбрать кейс выставить ему пасс
@@ -111,7 +120,7 @@ public class TestSuite : UITest
             ServicePointManager.ServerCertificateValidationCallback = MyRemoteCertificateValidationCallback;
             APIClient client = new APIClient("https://qa.room8studio.com/");
             client.User = "e.kalina@room8studio.com";
-            client.Password = "TOpsexIds.wd1TuNECt7-v.Mm.hsuW8kJTCuAV2iX";
+            client.Password = "TOpsexIds.wd1TuNECt7-v.Mm.hsuW8kJTCuAV2iX"; 
 
             var response = client.SendGet("get_runs/2&is_completed=0").ToString();
 
@@ -138,7 +147,6 @@ public class TestSuite : UITest
             client.Password = "TOpsexIds.wd1TuNECt7-v.Mm.hsuW8kJTCuAV2iX";
 
             var response = client.SendGet("get_runs/2&is_completed=0").ToString();
-
             var array = JsonConvert.DeserializeObject<List<TestRun>>(response);
 
             var InArray = array[0];
@@ -172,9 +180,13 @@ public class TestSuite : UITest
     [UISetUp]
     public IEnumerable Init()
     {
+#if UNITY_EDITOR
         yield return LoadSceneByPath("Assets/Game/Scene/ModeSelector.unity");
-
-
+#elif UNITY_ANDROID
+        yield return LoadScene("ModeSelector");
+#elif UNITY_IOS
+        yield return LoadScene("ModeSelector");
+#endif
     }
 
 
@@ -206,18 +218,6 @@ public class TestSuite : UITest
 
         RequestsToTestRail.SetUp();
 
-        APIClient client = new APIClient("https://qa.room8studio.com/");
-        client.User = "e.kalina@room8studio.com";
-        client.Password = "TOpsexIds.wd1TuNECt7-v.Mm.hsuW8kJTCuAV2iX";
-
-        var data = new Dictionary<string, object>
-        {
-            { "name", " Automation Test Run 20.11" },
-            { "suite_id", 369 },
-        };
-
-        JContainer jContainer = (JContainer) client.SendPost("get_run/369", data);
-
         if (testRunName == "Automation Test Run 20.11")
         {
             RequestsToTestRail.TestPass();
@@ -230,652 +230,666 @@ public class TestSuite : UITest
         yield return null;
     }
 
-    //[UITest]
-    //public IEnumerable PlusCheck()
-    //{
-    //    caseID = "46761";
-    //    yield return WaitFor(new ObjectAppeared("Canvas"));
-    //    yield return Press("AdditionButton");
-
-
-    //    var opName = GameObject.FindGameObjectWithTag("Operation").GetComponent<Image>().sprite.name;
-
-    //    if (opName == "plus")
-    //    {
-    //        RequestsToTestRail.TestPass();
-    //    }
-    //    else
-    //    {
-    //        RequestsToTestRail.TestFail();
-    //    }
-
-    //    yield return null;
-    //}
-
-    //[UITest]
-    //public IEnumerable MinusCheck()
-    //{
-    //    caseID = "46762";
-    //    yield return WaitFor(new ObjectAppeared("Canvas"));
-    //    yield return Press("SubtractionButton");
-
-
-    //    var opName = GameObject.FindGameObjectWithTag("Operation").GetComponent<Image>().sprite.name;
-
-    //    if (opName == "minus")
-    //    {
-    //        RequestsToTestRail.TestPass();
-    //    }
-    //    else
-    //    {
-    //        RequestsToTestRail.TestFail();
-    //    }
-
-    //    yield return null;
-    //}
-
-    //[UITest]
-    //public IEnumerable MultiplicationCheck()
-    //{
-    //    caseID = "46763";
-    //    yield return WaitFor(new ObjectAppeared("Canvas"));
-    //    yield return Press("MultiplicationButton");
-
-
-    //    var opName = GameObject.FindGameObjectWithTag("Operation").GetComponent<Image>().sprite.name;
-
-    //    if (opName == "multiply")
-    //    {
-    //        RequestsToTestRail.TestPass();
-    //    }
-    //    else
-    //    {
-    //        RequestsToTestRail.TestFail();
-    //    }
-
-    //    yield return null;
-    //}
-
-    //[UITest]
-    //public IEnumerable DivaderCheck()
-    //{
-    //    caseID = "46764";
-    //    yield return WaitFor(new ObjectAppeared("Canvas"));
-    //    yield return Press("DivisionButton");
-
-
-    //    var opName = GameObject.FindGameObjectWithTag("Operation").GetComponent<Image>().sprite.name;
-
-    //    if (opName == "divide")
-    //    {
-    //        RequestsToTestRail.TestPass();
-    //    }
-    //    else
-    //    {
-    //        RequestsToTestRail.TestFail();
-    //    }
-
-    //    yield return null;
-    //}
-
-    //[UITest]
-    //public IEnumerable LogicWithPlus()
-    //{
-    //    caseID = "46765";
-
-    //    yield return WaitFor(new ObjectAppeared("Canvas"));
-    //    yield return Press("AdditionButton");
-
-    //    yield return null;
-    //    var firstStr = GameObject.FindGameObjectWithTag("FirstVal").GetComponent<Text>().text;
-    //    var secondStr = GameObject.FindGameObjectWithTag("SecondVal").GetComponent<Text>().text;
-    //    var opName = GameObject.FindGameObjectWithTag("Operation").GetComponent<Image>().sprite.name;
-
+    [UITest]
+    public IEnumerable PlusCheck()
+    {
+        caseID = "46761";
+        yield return WaitFor(new ObjectAppeared("Canvas"));
+        yield return Press("AdditionButton");
+
+
+        var opName = GameObject.FindGameObjectWithTag("Operation").GetComponent<Image>().sprite.name;
+
+        if (opName == "plus")
+        {
+            RequestsToTestRail.TestPass();
+        }
+        else
+        {
+            RequestsToTestRail.TestFail();
+        }
+
+        yield return null;
+    }
+
+    [UITest]
+    public IEnumerable MinusCheck()
+    {
+        caseID = "46762";
+        yield return WaitFor(new ObjectAppeared("Canvas"));
+        yield return Press("SubtractionButton");
+
+
+        var opName = GameObject.FindGameObjectWithTag("Operation").GetComponent<Image>().sprite.name;
+
+        if (opName == "minus")
+        {
+            RequestsToTestRail.TestPass();
+        }
+        else
+        {
+            RequestsToTestRail.TestFail();
+        }
+
+        yield return null;
+    }
+
+    [UITest]
+    public IEnumerable MultiplicationCheck()
+    {
+        caseID = "46763";
+        yield return WaitFor(new ObjectAppeared("Canvas"));
+        yield return Press("MultiplicationButton");
+
+
+        var opName = GameObject.FindGameObjectWithTag("Operation").GetComponent<Image>().sprite.name;
+
+        if (opName == "multiply")
+        {
+            RequestsToTestRail.TestPass();
+        }
+        else
+        {
+            RequestsToTestRail.TestFail();
+        }
+
+        yield return null;
+    }
+
+    [UITest]
+    public IEnumerable DivaderCheck()
+    {
+        caseID = "46764";
+        yield return WaitFor(new ObjectAppeared("Canvas"));
+        yield return Press("DivisionButton");
+
+
+        var opName = GameObject.FindGameObjectWithTag("Operation").GetComponent<Image>().sprite.name;
+
+        if (opName == "divide")
+        {
+            RequestsToTestRail.TestPass();
+        }
+        else
+        {
+            RequestsToTestRail.TestFail();
+        }
+
+        yield return null;
+    }
+
+    [UITest]
+    public IEnumerable LogicWithPlus()
+    {
+        caseID = "46765";
+
+        yield return WaitFor(new ObjectAppeared("Canvas"));
+        yield return Press("AdditionButton");
+
+        yield return null;
+        var firstStr = GameObject.FindGameObjectWithTag("FirstVal").GetComponent<Text>().text;
+        var secondStr = GameObject.FindGameObjectWithTag("SecondVal").GetComponent<Text>().text;
+        var opName = GameObject.FindGameObjectWithTag("Operation").GetComponent<Image>().sprite.name;
+
 
-    //    var first = int.Parse(firstStr);
-    //    var second = int.Parse(secondStr);
-
-    //    var res = GetResult(opName, first, second);
-
-    //    var button1 = GameObject.FindGameObjectWithTag("0");
-    //    var button2 = GameObject.FindGameObjectWithTag("1");
-    //    var button3 = GameObject.FindGameObjectWithTag("2");
-    //    var button4 = GameObject.FindGameObjectWithTag("3");
-
-    //    var ans1 = int.Parse(button1.GetComponentInChildren<Text>().text);
-    //    if (ans1 == res)
-    //        yield return Press(button1.gameObject);
-
-    //    var ans2 = int.Parse(button2.GetComponentInChildren<Text>().text);
-    //    if (ans2 == res)
-    //        yield return Press(button2.gameObject);
-
-    //    var ans3 = int.Parse(button3.GetComponentInChildren<Text>().text);
-    //    if (ans3 == res)
-    //        yield return Press(button3.gameObject);
-
-    //    var ans4 = int.Parse(button4.GetComponentInChildren<Text>().text);
-    //    if (ans4 == res)
-    //        yield return Press(button4.gameObject);
-
-    //    if (res == 1)
-    //    {
-    //        RequestsToTestRail.TestPass();
-    //    }
-    //    else
-    //    {
-    //        RequestsToTestRail.TestFail();
-    //    }
-    //}
-
-    //[UITest]
-    //public IEnumerable LogicWithMinus()
-    //{
-    //    caseID = "46766";
-
-    //    yield return WaitFor(new ObjectAppeared("Canvas"));
-    //    yield return Press("SubtractionButton");
-    //    yield return null;
-    //    var firstStr = GameObject.FindGameObjectWithTag("FirstVal").GetComponent<Text>().text;
-    //    var secondStr = GameObject.FindGameObjectWithTag("SecondVal").GetComponent<Text>().text;
-    //    var opName = GameObject.FindGameObjectWithTag("Operation").GetComponent<Image>().sprite.name;
-
-    //    var first = int.Parse(firstStr);
-    //    var second = int.Parse(secondStr);
-
-    //    var res = GetResult(opName, first, second);
-
-    //    var button = GameObject.FindGameObjectWithTag("0");
-    //    var button2 = GameObject.FindGameObjectWithTag("1");
-    //    var button3 = GameObject.FindGameObjectWithTag("2");
-    //    var button4 = GameObject.FindGameObjectWithTag("3");
-
-    //    var ans1 = int.Parse(button.GetComponentInChildren<Text>().text);
-    //    if (ans1 == res)
-    //        yield return Press(button.gameObject);
-
-    //    var ans2 = int.Parse(button2.GetComponentInChildren<Text>().text);
-    //    if (ans2 == res)
-    //        yield return Press(button2.gameObject);
-
-    //    var ans3 = int.Parse(button3.GetComponentInChildren<Text>().text);
-    //    if (ans3 == res)
-    //        yield return Press(button3.gameObject);
-
-    //    var ans4 = int.Parse(button4.GetComponentInChildren<Text>().text);
-    //    if (ans4 == res)
-    //        yield return Press(button4.gameObject);
-
-    //    if (res == 2)
-    //    {
-    //        RequestsToTestRail.TestPass();
-    //    }
-    //    else
-    //    {
-    //        RequestsToTestRail.TestFail();
-    //    }
-    //}
-
-    //[UITest]
-    //public IEnumerable LogicWithMultiply()
-    //{
-    //    caseID = "46767";
-
-    //    yield return WaitFor(new ObjectAppeared("Canvas"));
-    //    yield return Press("MultiplicationButton");
-    //    yield return null;
-    //    var firstStr = GameObject.FindGameObjectWithTag("FirstVal").GetComponent<Text>().text;
-    //    var secondStr = GameObject.FindGameObjectWithTag("SecondVal").GetComponent<Text>().text;
-    //    var opName = GameObject.FindGameObjectWithTag("Operation").GetComponent<Image>().sprite.name;
-
-    //    var first = int.Parse(firstStr);
-    //    var second = int.Parse(secondStr);
-
-    //    var res = GetResult(opName, first, second);
-
-    //    var button = GameObject.FindGameObjectWithTag("0");
-    //    var button2 = GameObject.FindGameObjectWithTag("1");
-    //    var button3 = GameObject.FindGameObjectWithTag("2");
-    //    var button4 = GameObject.FindGameObjectWithTag("3");
-
-    //    var ans1 = int.Parse(button.GetComponentInChildren<Text>().text);
-    //    if (ans1 == res)
-    //        yield return Press(button.gameObject);
-
-    //    var ans2 = int.Parse(button2.GetComponentInChildren<Text>().text);
-    //    if (ans2 == res)
-    //        yield return Press(button2.gameObject);
-
-    //    var ans3 = int.Parse(button3.GetComponentInChildren<Text>().text);
-    //    if (ans3 == res)
-    //        yield return Press(button3.gameObject);
-
-    //    var ans4 = int.Parse(button4.GetComponentInChildren<Text>().text);
-    //    if (ans4 == res)
-    //        yield return Press(button4.gameObject);
-
-    //    if (res == 3)
-    //    {
-    //        RequestsToTestRail.TestPass();
-    //    }
-    //    else
-    //    {
-    //        RequestsToTestRail.TestFail();
-    //    }
-    //}
-
-    //[UITest]
-    //public IEnumerable LogicWithDivision()
-    //{
-    //    caseID = "46768";
-
-    //    yield return WaitFor(new ObjectAppeared("Canvas"));
-    //    yield return Press("DivisionButton");
-    //    yield return null;
-    //    var firstStr = GameObject.FindGameObjectWithTag("FirstVal").GetComponent<Text>().text;
-    //    var secondStr = GameObject.FindGameObjectWithTag("SecondVal").GetComponent<Text>().text;
-    //    var opName = GameObject.FindGameObjectWithTag("Operation").GetComponent<Image>().sprite.name;
-
-    //    var first = int.Parse(firstStr);
-    //    var second = int.Parse(secondStr);
-
-    //    var res = GetResult(opName, first, second);
-
-    //    var button = GameObject.FindGameObjectWithTag("0");
-    //    var button2 = GameObject.FindGameObjectWithTag("1");
-    //    var button3 = GameObject.FindGameObjectWithTag("2");
-    //    var button4 = GameObject.FindGameObjectWithTag("3");
-
-    //    var ans1 = int.Parse(button.GetComponentInChildren<Text>().text);
-    //    if (ans1 == res)
-    //        yield return Press(button.gameObject);
-
-    //    var ans2 = int.Parse(button2.GetComponentInChildren<Text>().text);
-    //    if (ans2 == res)
-    //        yield return Press(button2.gameObject);
-
-    //    var ans3 = int.Parse(button3.GetComponentInChildren<Text>().text);
-    //    if (ans3 == res)
-    //        yield return Press(button3.gameObject);
-
-    //    var ans4 = int.Parse(button4.GetComponentInChildren<Text>().text);
-    //    if (ans4 == res)
-    //        yield return Press(button4.gameObject);
-
-    //    if (res == 4)
-    //    {
-    //        RequestsToTestRail.TestPass();
-    //    }
-    //    else
-    //    {
-    //        RequestsToTestRail.TestFail();
-    //    }
-    //}
-
-    //[UITest]
-    //public IEnumerable LogicWithMix()
-    //{
-    //    caseID = "46769";
-
-    //    yield return WaitFor(new ObjectAppeared("Canvas"));
-    //    yield return Press("DivisionButton");
-    //    yield return null;
-    //    var firstStr = GameObject.FindGameObjectWithTag("FirstVal").GetComponent<Text>().text;
-    //    var secondStr = GameObject.FindGameObjectWithTag("SecondVal").GetComponent<Text>().text;
-    //    var opName = GameObject.FindGameObjectWithTag("Operation").GetComponent<Image>().sprite.name;
-
-    //    var first = int.Parse(firstStr);
-    //    var second = int.Parse(secondStr);
-
-    //    var res = GetResult(opName, first, second);
-
-    //    var button = GameObject.FindGameObjectWithTag("0");
-    //    var button2 = GameObject.FindGameObjectWithTag("1");
-    //    var button3 = GameObject.FindGameObjectWithTag("2");
-    //    var button4 = GameObject.FindGameObjectWithTag("3");
-
-    //    var ans1 = int.Parse(button.GetComponentInChildren<Text>().text);
-    //    if (ans1 == res)
-    //        yield return Press(button.gameObject);
-
-    //    var ans2 = int.Parse(button2.GetComponentInChildren<Text>().text);
-    //    if (ans2 == res)
-    //        yield return Press(button2.gameObject);
-
-    //    var ans3 = int.Parse(button3.GetComponentInChildren<Text>().text);
-    //    if (ans3 == res)
-    //        yield return Press(button3.gameObject);
-
-    //    var ans4 = int.Parse(button4.GetComponentInChildren<Text>().text);
-    //    if (ans4 == res)
-    //        yield return Press(button4.gameObject);
-
-    //    if (res == 5)
-    //    {
-    //        RequestsToTestRail.TestPass();
-    //    }
-    //    else
-    //    {
-    //        RequestsToTestRail.TestFail();
-    //    }
-    //}
-
-    //[UITest]
-    //public IEnumerable PlusGameBot()
-    //{
-    //    caseID = "46770";
-
-    //    yield return null;
-    //    var pause = new WaitForSeconds(0.1f);
-    //    yield return WaitFor(new ObjectAppeared("Canvas"));
-    //    yield return Press("AdditionButton");
-
-    //    var ScoreFind = GameObject.FindGameObjectWithTag("Score").GetComponent<Text>().text;
-    //    int Score = int.Parse(ScoreFind);
-
-    //    do
-    //    {
-
-    //        ScoreFind = GameObject.FindGameObjectWithTag("Score").GetComponent<Text>().text;
-    //        Score = int.Parse(ScoreFind);
-
-    //        yield return WaitFor(new ObjectAppeared("Canvas"));
-
-    //        var firstStr = GameObject.FindGameObjectWithTag("FirstVal").GetComponent<Text>().text;
-    //        var secondStr = GameObject.FindGameObjectWithTag("SecondVal").GetComponent<Text>().text;
-    //        var opName = GameObject.FindGameObjectWithTag("Operation").GetComponent<Image>().sprite.name;
-
-    //        var first = int.Parse(firstStr);
-    //        var second = int.Parse(secondStr);
-
-    //        var res = GetResult(opName, first, second);
-
-    //        var button = GameObject.FindGameObjectWithTag("0");
-    //        var button2 = GameObject.FindGameObjectWithTag("1");
-    //        var button3 = GameObject.FindGameObjectWithTag("2");
-    //        var button4 = GameObject.FindGameObjectWithTag("3");
-
-    //        var ans1 = int.Parse(button.GetComponentInChildren<Text>().text);
-    //        if (ans1 == res)
-    //            yield return Press(button.gameObject);
-
-    //        var ans2 = int.Parse(button2.GetComponentInChildren<Text>().text);
-    //        if (ans2 == res)
-    //            yield return Press(button2.gameObject);
-
-    //        var ans3 = int.Parse(button3.GetComponentInChildren<Text>().text);
-    //        if (ans3 == res)
-    //            yield return Press(button3.gameObject);
-
-    //        var ans4 = int.Parse(button4.GetComponentInChildren<Text>().text);
-    //        if (ans4 == res)
-    //            yield return Press(button4.gameObject);
-    //        yield return null;
-    //    } while (Score < 99);
-
-    //    if (Score == 100)
-    //    {
-    //        RequestsToTestRail.TestPass();
-    //    }
-    //    else
-    //    {
-    //        RequestsToTestRail.TestFail();
-    //    }
-    //}
-
-    //[UITest]
-    //public IEnumerable MinusGameBot()
-    //{
-    //    caseID = "46771";
-
-    //    yield return null;
-    //    var pause = new WaitForSeconds(0.1f);
-    //    yield return WaitFor(new ObjectAppeared("Canvas"));
-    //    yield return Press("SubtractionButton");
-
-    //    var ScoreFind = GameObject.FindGameObjectWithTag("Score").GetComponent<Text>().text;
-    //    int Score = int.Parse(ScoreFind);
-
-    //    do
-    //    {
-
-    //        ScoreFind = GameObject.FindGameObjectWithTag("Score").GetComponent<Text>().text;
-    //        Score = int.Parse(ScoreFind);
-
-    //        yield return WaitFor(new ObjectAppeared("Canvas"));
-
-    //        var firstStr = GameObject.FindGameObjectWithTag("FirstVal").GetComponent<Text>().text;
-    //        var secondStr = GameObject.FindGameObjectWithTag("SecondVal").GetComponent<Text>().text;
-    //        var opName = GameObject.FindGameObjectWithTag("Operation").GetComponent<Image>().sprite.name;
-
-    //        var first = int.Parse(firstStr);
-    //        var second = int.Parse(secondStr);
-
-    //        var res = GetResult(opName, first, second);
-
-    //        var button = GameObject.FindGameObjectWithTag("0");
-    //        var button2 = GameObject.FindGameObjectWithTag("1");
-    //        var button3 = GameObject.FindGameObjectWithTag("2");
-    //        var button4 = GameObject.FindGameObjectWithTag("3");
-
-    //        var ans1 = int.Parse(button.GetComponentInChildren<Text>().text);
-    //        if (ans1 == res)
-    //            yield return Press(button.gameObject);
-
-    //        var ans2 = int.Parse(button2.GetComponentInChildren<Text>().text);
-    //        if (ans2 == res)
-    //            yield return Press(button2.gameObject);
-
-    //        var ans3 = int.Parse(button3.GetComponentInChildren<Text>().text);
-    //        if (ans3 == res)
-    //            yield return Press(button3.gameObject);
-
-    //        var ans4 = int.Parse(button4.GetComponentInChildren<Text>().text);
-    //        if (ans4 == res)
-    //            yield return Press(button4.gameObject);
-    //        yield return null;
-
-    //    } while (Score < 199);
-
-    //    if (Score == 200)
-    //    {
-    //        RequestsToTestRail.TestPass();
-    //    }
-    //    else
-    //    {
-    //        RequestsToTestRail.TestFail();
-    //    }
-    //}
-
-    //[UITest]
-    //public IEnumerable MultiGameBot()
-    //{
-    //    caseID = "46772";
-
-    //    yield return null;
-    //    var pause = new WaitForSeconds(0.1f);
-    //    yield return WaitFor(new ObjectAppeared("Canvas"));
-    //    yield return Press("MultiplicationButton");
-
-    //    var ScoreFind = GameObject.FindGameObjectWithTag("Score").GetComponent<Text>().text;
-    //    int Score = int.Parse(ScoreFind);
-
-    //    do
-    //    {
-
-    //        ScoreFind = GameObject.FindGameObjectWithTag("Score").GetComponent<Text>().text;
-    //        Score = int.Parse(ScoreFind);
-
-    //        yield return WaitFor(new ObjectAppeared("Canvas"));
-
-    //        var firstStr = GameObject.FindGameObjectWithTag("FirstVal").GetComponent<Text>().text;
-    //        var secondStr = GameObject.FindGameObjectWithTag("SecondVal").GetComponent<Text>().text;
-    //        var opName = GameObject.FindGameObjectWithTag("Operation").GetComponent<Image>().sprite.name;
-
-    //        var first = int.Parse(firstStr);
-    //        var second = int.Parse(secondStr);
-
-    //        var res = GetResult(opName, first, second);
-
-    //        var button = GameObject.FindGameObjectWithTag("0");
-    //        var button2 = GameObject.FindGameObjectWithTag("1");
-    //        var button3 = GameObject.FindGameObjectWithTag("2");
-    //        var button4 = GameObject.FindGameObjectWithTag("3");
-
-    //        var ans1 = int.Parse(button.GetComponentInChildren<Text>().text);
-    //        if (ans1 == res)
-    //            yield return Press(button.gameObject);
-
-    //        var ans2 = int.Parse(button2.GetComponentInChildren<Text>().text);
-    //        if (ans2 == res)
-    //            yield return Press(button2.gameObject);
-
-    //        var ans3 = int.Parse(button3.GetComponentInChildren<Text>().text);
-    //        if (ans3 == res)
-    //            yield return Press(button3.gameObject);
-
-    //        var ans4 = int.Parse(button4.GetComponentInChildren<Text>().text);
-    //        if (ans4 == res)
-    //            yield return Press(button4.gameObject);
-    //        yield return null;
-
-    //    } while (Score < 299);
-
-    //    if (Score == 300)
-    //    {
-    //        RequestsToTestRail.TestPass();
-    //    }
-    //    else
-    //    {
-    //        RequestsToTestRail.TestFail();
-    //    }
-    //}
-
-    //[UITest]
-    //public IEnumerable DivideGameBot()
-    //{
-    //    caseID = "46773";
-
-    //    yield return null;
-    //    var pause = new WaitForSeconds(0.1f);
-    //    yield return WaitFor(new ObjectAppeared("Canvas"));
-    //    yield return Press("DivisionButton");
-
-    //    var ScoreFind = GameObject.FindGameObjectWithTag("Score").GetComponent<Text>().text;
-    //    int Score = int.Parse(ScoreFind);
-
-    //    do
-    //    {
-
-    //        ScoreFind = GameObject.FindGameObjectWithTag("Score").GetComponent<Text>().text;
-    //        Score = int.Parse(ScoreFind);
-
-    //        yield return WaitFor(new ObjectAppeared("Canvas"));
-
-    //        var firstStr = GameObject.FindGameObjectWithTag("FirstVal").GetComponent<Text>().text;
-    //        var secondStr = GameObject.FindGameObjectWithTag("SecondVal").GetComponent<Text>().text;
-    //        var opName = GameObject.FindGameObjectWithTag("Operation").GetComponent<Image>().sprite.name;
-
-    //        var first = int.Parse(firstStr);
-    //        var second = int.Parse(secondStr);
-
-    //        var res = GetResult(opName, first, second);
-
-    //        var button = GameObject.FindGameObjectWithTag("0");
-    //        var button2 = GameObject.FindGameObjectWithTag("1");
-    //        var button3 = GameObject.FindGameObjectWithTag("2");
-    //        var button4 = GameObject.FindGameObjectWithTag("3");
-
-    //        var ans1 = int.Parse(button.GetComponentInChildren<Text>().text);
-    //        if (ans1 == res)
-    //            yield return Press(button.gameObject);
-
-    //        var ans2 = int.Parse(button2.GetComponentInChildren<Text>().text);
-    //        if (ans2 == res)
-    //            yield return Press(button2.gameObject);
-
-    //        var ans3 = int.Parse(button3.GetComponentInChildren<Text>().text);
-    //        if (ans3 == res)
-    //            yield return Press(button3.gameObject);
-
-    //        var ans4 = int.Parse(button4.GetComponentInChildren<Text>().text);
-    //        if (ans4 == res)
-    //            yield return Press(button4.gameObject);
-    //        yield return null;
-
-    //    } while (Score < 399);
-
-    //    if (Score == 400)
-    //    {
-    //        RequestsToTestRail.TestPass();
-    //    }
-    //    else
-    //    {
-    //        RequestsToTestRail.TestFail();
-    //    }
-    //}
-
-    //[UITest]
-    //public IEnumerable MixGameBot()
-    //{
-    //    caseID = "46774";
-
-    //    yield return null;
-    //    var pause = new WaitForSeconds(0.1f);
-    //    yield return WaitFor(new ObjectAppeared("Canvas"));
-    //    yield return Press("MixButton");
-
-    //    var ScoreFind = GameObject.FindGameObjectWithTag("Score").GetComponent<Text>().text;
-    //    int Score = int.Parse(ScoreFind);
-
-    //    do
-    //    {
-
-    //        ScoreFind = GameObject.FindGameObjectWithTag("Score").GetComponent<Text>().text;
-    //        Score = int.Parse(ScoreFind);
-
-    //        yield return WaitFor(new ObjectAppeared("Canvas"));
-
-    //        var firstStr = GameObject.FindGameObjectWithTag("FirstVal").GetComponent<Text>().text;
-    //        var secondStr = GameObject.FindGameObjectWithTag("SecondVal").GetComponent<Text>().text;
-    //        var opName = GameObject.FindGameObjectWithTag("Operation").GetComponent<Image>().sprite.name;
-
-    //        var first = int.Parse(firstStr);
-    //        var second = int.Parse(secondStr);
-
-    //        var res = GetResult(opName, first, second);
-
-    //        var button = GameObject.FindGameObjectWithTag("0");
-    //        var button2 = GameObject.FindGameObjectWithTag("1");
-    //        var button3 = GameObject.FindGameObjectWithTag("2");
-    //        var button4 = GameObject.FindGameObjectWithTag("3");
-
-    //        var ans1 = int.Parse(button.GetComponentInChildren<Text>().text);
-    //        if (ans1 == res)
-    //            yield return Press(button.gameObject);
-
-    //        var ans2 = int.Parse(button2.GetComponentInChildren<Text>().text);
-    //        if (ans2 == res)
-    //            yield return Press(button2.gameObject);
-
-    //        var ans3 = int.Parse(button3.GetComponentInChildren<Text>().text);
-    //        if (ans3 == res)
-    //            yield return Press(button3.gameObject);
-
-    //        var ans4 = int.Parse(button4.GetComponentInChildren<Text>().text);
-    //        if (ans4 == res)
-    //            yield return Press(button4.gameObject);
-    //        yield return null;
-
-    //    } while (Score < 499);
-
-    //    if (Score == 500)
-    //    {
-    //        RequestsToTestRail.TestPass();
-    //    }
-    //    else
-    //    {
-    //        RequestsToTestRail.TestFail();
-    //    }
-    //}
+        var first = int.Parse(firstStr);
+        var second = int.Parse(secondStr);
+
+        var res = GetResult(opName, first, second);
+
+        var button1 = GameObject.FindGameObjectWithTag("0");
+        var button2 = GameObject.FindGameObjectWithTag("1");
+        var button3 = GameObject.FindGameObjectWithTag("2");
+        var button4 = GameObject.FindGameObjectWithTag("3");
+
+        var ans1 = int.Parse(button1.GetComponentInChildren<Text>().text);
+        if (ans1 == res)
+            yield return Press(button1.gameObject);
+
+        var ans2 = int.Parse(button2.GetComponentInChildren<Text>().text);
+        if (ans2 == res)
+            yield return Press(button2.gameObject);
+
+        var ans3 = int.Parse(button3.GetComponentInChildren<Text>().text);
+        if (ans3 == res)
+            yield return Press(button3.gameObject);
+
+        var ans4 = int.Parse(button4.GetComponentInChildren<Text>().text);
+        if (ans4 == res)
+            yield return Press(button4.gameObject);
+        var ScoreFind = GameObject.FindGameObjectWithTag("Score").GetComponent<Text>().text;
+        int Score = int.Parse(ScoreFind);
+
+        if (Score == 1)
+        {
+            RequestsToTestRail.TestPass();
+        }
+        else
+        {
+            RequestsToTestRail.TestFail();
+        }
+    }
+
+    [UITest]
+    public IEnumerable LogicWithMinus()
+    {
+        caseID = "46766";
+
+        yield return WaitFor(new ObjectAppeared("Canvas"));
+        yield return Press("SubtractionButton");
+        yield return null;
+        var firstStr = GameObject.FindGameObjectWithTag("FirstVal").GetComponent<Text>().text;
+        var secondStr = GameObject.FindGameObjectWithTag("SecondVal").GetComponent<Text>().text;
+        var opName = GameObject.FindGameObjectWithTag("Operation").GetComponent<Image>().sprite.name;
+
+        var first = int.Parse(firstStr);
+        var second = int.Parse(secondStr);
+
+        var res = GetResult(opName, first, second);
+
+        var button = GameObject.FindGameObjectWithTag("0");
+        var button2 = GameObject.FindGameObjectWithTag("1");
+        var button3 = GameObject.FindGameObjectWithTag("2");
+        var button4 = GameObject.FindGameObjectWithTag("3");
+
+        var ans1 = int.Parse(button.GetComponentInChildren<Text>().text);
+        if (ans1 == res)
+            yield return Press(button.gameObject);
+
+        var ans2 = int.Parse(button2.GetComponentInChildren<Text>().text);
+        if (ans2 == res)
+            yield return Press(button2.gameObject);
+
+        var ans3 = int.Parse(button3.GetComponentInChildren<Text>().text);
+        if (ans3 == res)
+            yield return Press(button3.gameObject);
+
+        var ans4 = int.Parse(button4.GetComponentInChildren<Text>().text);
+        if (ans4 == res)
+        yield return Press(button4.gameObject);
+
+        var ScoreFind = GameObject.FindGameObjectWithTag("Score").GetComponent<Text>().text;
+        int Score = int.Parse(ScoreFind);
+
+        if (Score == 2)
+        {
+            RequestsToTestRail.TestPass();
+        }
+        else
+        {
+            RequestsToTestRail.TestFail();
+        }
+    }
+
+    [UITest]
+    public IEnumerable LogicWithMultiply()
+    {
+        caseID = "46767";
+
+        yield return WaitFor(new ObjectAppeared("Canvas"));
+        yield return Press("MultiplicationButton");
+        yield return null;
+        var firstStr = GameObject.FindGameObjectWithTag("FirstVal").GetComponent<Text>().text;
+        var secondStr = GameObject.FindGameObjectWithTag("SecondVal").GetComponent<Text>().text;
+        var opName = GameObject.FindGameObjectWithTag("Operation").GetComponent<Image>().sprite.name;
+
+        var first = int.Parse(firstStr);
+        var second = int.Parse(secondStr);
+
+        var res = GetResult(opName, first, second);
+
+        var button = GameObject.FindGameObjectWithTag("0");
+        var button2 = GameObject.FindGameObjectWithTag("1");
+        var button3 = GameObject.FindGameObjectWithTag("2");
+        var button4 = GameObject.FindGameObjectWithTag("3");
+
+        var ans1 = int.Parse(button.GetComponentInChildren<Text>().text);
+        if (ans1 == res)
+            yield return Press(button.gameObject);
+
+        var ans2 = int.Parse(button2.GetComponentInChildren<Text>().text);
+        if (ans2 == res)
+            yield return Press(button2.gameObject);
+
+        var ans3 = int.Parse(button3.GetComponentInChildren<Text>().text);
+        if (ans3 == res)
+            yield return Press(button3.gameObject);
+
+        var ans4 = int.Parse(button4.GetComponentInChildren<Text>().text);
+        if (ans4 == res)
+            yield return Press(button4.gameObject);
+
+        var ScoreFind = GameObject.FindGameObjectWithTag("Score").GetComponent<Text>().text;
+        int Score = int.Parse(ScoreFind);
+
+        if (Score == 3)
+        {
+            RequestsToTestRail.TestPass();
+        }
+        else
+        {
+            RequestsToTestRail.TestFail();
+        }
+    }
+
+    [UITest]
+    public IEnumerable LogicWithDivision()
+    {
+        caseID = "46768";
+
+        yield return WaitFor(new ObjectAppeared("Canvas"));
+        yield return Press("DivisionButton");
+        yield return null;
+        var firstStr = GameObject.FindGameObjectWithTag("FirstVal").GetComponent<Text>().text;
+        var secondStr = GameObject.FindGameObjectWithTag("SecondVal").GetComponent<Text>().text;
+        var opName = GameObject.FindGameObjectWithTag("Operation").GetComponent<Image>().sprite.name;
+
+        var first = int.Parse(firstStr);
+        var second = int.Parse(secondStr);
+
+        var res = GetResult(opName, first, second);
+
+        var button = GameObject.FindGameObjectWithTag("0");
+        var button2 = GameObject.FindGameObjectWithTag("1");
+        var button3 = GameObject.FindGameObjectWithTag("2");
+        var button4 = GameObject.FindGameObjectWithTag("3");
+
+        var ans1 = int.Parse(button.GetComponentInChildren<Text>().text);
+        if (ans1 == res)
+            yield return Press(button.gameObject);
+
+        var ans2 = int.Parse(button2.GetComponentInChildren<Text>().text);
+        if (ans2 == res)
+            yield return Press(button2.gameObject);
+
+        var ans3 = int.Parse(button3.GetComponentInChildren<Text>().text);
+        if (ans3 == res)
+            yield return Press(button3.gameObject);
+
+        var ans4 = int.Parse(button4.GetComponentInChildren<Text>().text);
+        if (ans4 == res)
+            yield return Press(button4.gameObject);
+
+        var ScoreFind = GameObject.FindGameObjectWithTag("Score").GetComponent<Text>().text;
+        int Score = int.Parse(ScoreFind);
+
+        if (Score == 4)
+        {
+            RequestsToTestRail.TestPass();
+        }
+        else
+        {
+            RequestsToTestRail.TestFail();
+        }
+    }
+
+    [UITest]
+    public IEnumerable LogicWithMix()
+    {
+        caseID = "46769";
+
+        yield return WaitFor(new ObjectAppeared("Canvas"));
+        yield return Press("DivisionButton");
+        yield return null;
+        var firstStr = GameObject.FindGameObjectWithTag("FirstVal").GetComponent<Text>().text;
+        var secondStr = GameObject.FindGameObjectWithTag("SecondVal").GetComponent<Text>().text;
+        var opName = GameObject.FindGameObjectWithTag("Operation").GetComponent<Image>().sprite.name;
+
+        var first = int.Parse(firstStr);
+        var second = int.Parse(secondStr);
+
+        var res = GetResult(opName, first, second);
+
+        var button = GameObject.FindGameObjectWithTag("0");
+        var button2 = GameObject.FindGameObjectWithTag("1");
+        var button3 = GameObject.FindGameObjectWithTag("2");
+        var button4 = GameObject.FindGameObjectWithTag("3");
+
+        var ans1 = int.Parse(button.GetComponentInChildren<Text>().text);
+        if (ans1 == res)
+            yield return Press(button.gameObject);
+
+        var ans2 = int.Parse(button2.GetComponentInChildren<Text>().text);
+        if (ans2 == res)
+            yield return Press(button2.gameObject);
+
+        var ans3 = int.Parse(button3.GetComponentInChildren<Text>().text);
+        if (ans3 == res)
+            yield return Press(button3.gameObject);
+
+        var ans4 = int.Parse(button4.GetComponentInChildren<Text>().text);
+        if (ans4 == res)
+            yield return Press(button4.gameObject);
+
+        var ScoreFind = GameObject.FindGameObjectWithTag("Score").GetComponent<Text>().text;
+        int Score = int.Parse(ScoreFind);
+
+        if (Score == 5)
+        {
+            RequestsToTestRail.TestPass();
+        }
+        else
+        {
+            RequestsToTestRail.TestFail();
+        }
+    }
+
+    [UITest]
+    public IEnumerable PlusGameBot()
+    {
+        caseID = "46770";
+
+        yield return null;
+        var pause = new WaitForSeconds(0.1f);
+        yield return WaitFor(new ObjectAppeared("Canvas"));
+        yield return Press("AdditionButton");
+
+        var ScoreFind = GameObject.FindGameObjectWithTag("Score").GetComponent<Text>().text;
+        int Score = int.Parse(ScoreFind);
+
+        do
+        {
+
+            ScoreFind = GameObject.FindGameObjectWithTag("Score").GetComponent<Text>().text;
+            Score = int.Parse(ScoreFind);
+
+            yield return WaitFor(new ObjectAppeared("Canvas"));
+
+            var firstStr = GameObject.FindGameObjectWithTag("FirstVal").GetComponent<Text>().text;
+            var secondStr = GameObject.FindGameObjectWithTag("SecondVal").GetComponent<Text>().text;
+            var opName = GameObject.FindGameObjectWithTag("Operation").GetComponent<Image>().sprite.name;
+
+            var first = int.Parse(firstStr);
+            var second = int.Parse(secondStr);
+
+            var res = GetResult(opName, first, second);
+
+            var button = GameObject.FindGameObjectWithTag("0");
+            var button2 = GameObject.FindGameObjectWithTag("1");
+            var button3 = GameObject.FindGameObjectWithTag("2");
+            var button4 = GameObject.FindGameObjectWithTag("3");
+
+            var ans1 = int.Parse(button.GetComponentInChildren<Text>().text);
+            if (ans1 == res)
+                yield return Press(button.gameObject);
+
+            var ans2 = int.Parse(button2.GetComponentInChildren<Text>().text);
+            if (ans2 == res)
+                yield return Press(button2.gameObject);
+
+            var ans3 = int.Parse(button3.GetComponentInChildren<Text>().text);
+            if (ans3 == res)
+                yield return Press(button3.gameObject);
+
+            var ans4 = int.Parse(button4.GetComponentInChildren<Text>().text);
+            if (ans4 == res)
+                yield return Press(button4.gameObject);
+            yield return null;
+        } while (Score < 99);
+
+        if (Score == 99)
+        {
+            RequestsToTestRail.TestPass();
+        }
+        else
+        {
+            RequestsToTestRail.TestFail();
+        }
+    }
+
+    [UITest]
+    public IEnumerable MinusGameBot()
+    {
+        caseID = "46771";
+
+        yield return null;
+        var pause = new WaitForSeconds(0.1f);
+        yield return WaitFor(new ObjectAppeared("Canvas"));
+        yield return Press("SubtractionButton");
+
+        var ScoreFind = GameObject.FindGameObjectWithTag("Score").GetComponent<Text>().text;
+        int Score = int.Parse(ScoreFind);
+
+        do
+        {
+
+            ScoreFind = GameObject.FindGameObjectWithTag("Score").GetComponent<Text>().text;
+            Score = int.Parse(ScoreFind);
+
+            yield return WaitFor(new ObjectAppeared("Canvas"));
+
+            var firstStr = GameObject.FindGameObjectWithTag("FirstVal").GetComponent<Text>().text;
+            var secondStr = GameObject.FindGameObjectWithTag("SecondVal").GetComponent<Text>().text;
+            var opName = GameObject.FindGameObjectWithTag("Operation").GetComponent<Image>().sprite.name;
+
+            var first = int.Parse(firstStr);
+            var second = int.Parse(secondStr);
+
+            var res = GetResult(opName, first, second);
+
+            var button = GameObject.FindGameObjectWithTag("0");
+            var button2 = GameObject.FindGameObjectWithTag("1");
+            var button3 = GameObject.FindGameObjectWithTag("2");
+            var button4 = GameObject.FindGameObjectWithTag("3");
+
+            var ans1 = int.Parse(button.GetComponentInChildren<Text>().text);
+            if (ans1 == res)
+                yield return Press(button.gameObject);
+
+            var ans2 = int.Parse(button2.GetComponentInChildren<Text>().text);
+            if (ans2 == res)
+                yield return Press(button2.gameObject);
+
+            var ans3 = int.Parse(button3.GetComponentInChildren<Text>().text);
+            if (ans3 == res)
+                yield return Press(button3.gameObject);
+
+            var ans4 = int.Parse(button4.GetComponentInChildren<Text>().text);
+            if (ans4 == res)
+                yield return Press(button4.gameObject);
+            yield return null;
+
+        } while (Score < 199);
+
+        if (Score == 199)
+        {
+            RequestsToTestRail.TestPass();
+        }
+        else
+        {
+            RequestsToTestRail.TestFail();
+        }
+    }
+
+    [UITest]
+    public IEnumerable MultiGameBot()
+    {
+        caseID = "46772";
+
+        yield return null;
+        var pause = new WaitForSeconds(0.1f);
+        yield return WaitFor(new ObjectAppeared("Canvas"));
+        yield return Press("MultiplicationButton");
+
+        var ScoreFind = GameObject.FindGameObjectWithTag("Score").GetComponent<Text>().text;
+        int Score = int.Parse(ScoreFind);
+
+        do
+        {
+
+            ScoreFind = GameObject.FindGameObjectWithTag("Score").GetComponent<Text>().text;
+            Score = int.Parse(ScoreFind);
+
+            yield return WaitFor(new ObjectAppeared("Canvas"));
+
+            var firstStr = GameObject.FindGameObjectWithTag("FirstVal").GetComponent<Text>().text;
+            var secondStr = GameObject.FindGameObjectWithTag("SecondVal").GetComponent<Text>().text;
+            var opName = GameObject.FindGameObjectWithTag("Operation").GetComponent<Image>().sprite.name;
+
+            var first = int.Parse(firstStr);
+            var second = int.Parse(secondStr);
+
+            var res = GetResult(opName, first, second);
+
+            var button = GameObject.FindGameObjectWithTag("0");
+            var button2 = GameObject.FindGameObjectWithTag("1");
+            var button3 = GameObject.FindGameObjectWithTag("2");
+            var button4 = GameObject.FindGameObjectWithTag("3");
+
+            var ans1 = int.Parse(button.GetComponentInChildren<Text>().text);
+            if (ans1 == res)
+                yield return Press(button.gameObject);
+
+            var ans2 = int.Parse(button2.GetComponentInChildren<Text>().text);
+            if (ans2 == res)
+                yield return Press(button2.gameObject);
+
+            var ans3 = int.Parse(button3.GetComponentInChildren<Text>().text);
+            if (ans3 == res)
+                yield return Press(button3.gameObject);
+
+            var ans4 = int.Parse(button4.GetComponentInChildren<Text>().text);
+            if (ans4 == res)
+                yield return Press(button4.gameObject);
+            yield return null;
+
+        } while (Score < 299);
+
+        if (Score == 299)
+        {
+            RequestsToTestRail.TestPass();
+        }
+        else
+        {
+            RequestsToTestRail.TestFail();
+        }
+    }
+
+    [UITest]
+    public IEnumerable DivideGameBot()
+    {
+        caseID = "46773";
+
+        yield return null;
+        var pause = new WaitForSeconds(0.1f);
+        yield return WaitFor(new ObjectAppeared("Canvas"));
+        yield return Press("DivisionButton");
+
+        var ScoreFind = GameObject.FindGameObjectWithTag("Score").GetComponent<Text>().text;
+        int Score = int.Parse(ScoreFind);
+
+        do
+        {
+
+            ScoreFind = GameObject.FindGameObjectWithTag("Score").GetComponent<Text>().text;
+            Score = int.Parse(ScoreFind);
+
+            yield return WaitFor(new ObjectAppeared("Canvas"));
+
+            var firstStr = GameObject.FindGameObjectWithTag("FirstVal").GetComponent<Text>().text;
+            var secondStr = GameObject.FindGameObjectWithTag("SecondVal").GetComponent<Text>().text;
+            var opName = GameObject.FindGameObjectWithTag("Operation").GetComponent<Image>().sprite.name;
+
+            var first = int.Parse(firstStr);
+            var second = int.Parse(secondStr);
+
+            var res = GetResult(opName, first, second);
+
+            var button = GameObject.FindGameObjectWithTag("0");
+            var button2 = GameObject.FindGameObjectWithTag("1");
+            var button3 = GameObject.FindGameObjectWithTag("2");
+            var button4 = GameObject.FindGameObjectWithTag("3");
+
+            var ans1 = int.Parse(button.GetComponentInChildren<Text>().text);
+            if (ans1 == res)
+                yield return Press(button.gameObject);
+
+            var ans2 = int.Parse(button2.GetComponentInChildren<Text>().text);
+            if (ans2 == res)
+                yield return Press(button2.gameObject);
+
+            var ans3 = int.Parse(button3.GetComponentInChildren<Text>().text);
+            if (ans3 == res)
+                yield return Press(button3.gameObject);
+
+            var ans4 = int.Parse(button4.GetComponentInChildren<Text>().text);
+            if (ans4 == res)
+                yield return Press(button4.gameObject);
+            yield return null;
+
+        } while (Score < 399);
+
+        if (Score == 399)
+        {
+            RequestsToTestRail.TestPass();
+        }
+        else
+        {
+            RequestsToTestRail.TestFail();
+        }
+    }
+
+    [UITest]
+    public IEnumerable MixGameBot()
+    {
+        caseID = "46774";
+
+        yield return null;
+        var pause = new WaitForSeconds(0.1f);
+        yield return WaitFor(new ObjectAppeared("Canvas"));
+        yield return Press("MixButton");
+
+        var ScoreFind = GameObject.FindGameObjectWithTag("Score").GetComponent<Text>().text;
+        int Score = int.Parse(ScoreFind);
+
+        do
+        {
+
+            ScoreFind = GameObject.FindGameObjectWithTag("Score").GetComponent<Text>().text;
+            Score = int.Parse(ScoreFind);
+
+            yield return WaitFor(new ObjectAppeared("Canvas"));
+
+            var firstStr = GameObject.FindGameObjectWithTag("FirstVal").GetComponent<Text>().text;
+            var secondStr = GameObject.FindGameObjectWithTag("SecondVal").GetComponent<Text>().text;
+            var opName = GameObject.FindGameObjectWithTag("Operation").GetComponent<Image>().sprite.name;
+
+            var first = int.Parse(firstStr);
+            var second = int.Parse(secondStr);
+
+            var res = GetResult(opName, first, second);
+
+            var button = GameObject.FindGameObjectWithTag("0");
+            var button2 = GameObject.FindGameObjectWithTag("1");
+            var button3 = GameObject.FindGameObjectWithTag("2");
+            var button4 = GameObject.FindGameObjectWithTag("3");
+
+            var ans1 = int.Parse(button.GetComponentInChildren<Text>().text);
+            if (ans1 == res)
+                yield return Press(button.gameObject);
+
+            var ans2 = int.Parse(button2.GetComponentInChildren<Text>().text);
+            if (ans2 == res)
+                yield return Press(button2.gameObject);
+
+            var ans3 = int.Parse(button3.GetComponentInChildren<Text>().text);
+            if (ans3 == res)
+                yield return Press(button3.gameObject);
+
+            var ans4 = int.Parse(button4.GetComponentInChildren<Text>().text);
+            if (ans4 == res)
+                yield return Press(button4.gameObject);
+            yield return null;
+
+        } while (Score < 499);
+
+        if (Score == 499)
+        {
+            RequestsToTestRail.TestPass();
+        }
+        else
+        {
+            RequestsToTestRail.TestFail();
+        }
+    }
 }

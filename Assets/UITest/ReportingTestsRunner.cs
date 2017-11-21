@@ -9,9 +9,18 @@ using System.IO;
 
 public class ReportingTestsRunner : TestsRunner
 {
-    public const string TestReportPath = "test-report";
+        private const string FileName = "test-report";
 
-    const string Delimeter = "--------------------------------------------------------------------------------";
+        public static string TestReportPath
+        {
+            get
+            {
+                var folderPath = Path.Combine(UnityEngine.Application.persistentDataPath, FileName);
+                return folderPath;
+            }
+        }
+
+        const string Delimeter = "--------------------------------------------------------------------------------";
 
     public string testfilter;
 
