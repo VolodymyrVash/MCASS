@@ -6,7 +6,7 @@ using System.Reflection;
 using System.Linq;
 
 public class TestsRunner : MonoBehaviour
-{
+{ 
     List<Type> testFixtures;
     public List<Type> TestFixtures {
         get {

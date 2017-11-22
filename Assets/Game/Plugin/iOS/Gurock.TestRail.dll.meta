@@ -1,7 +1,7 @@
 fileFormatVersion: 2
-guid: 8f58d2ed9d105b845aeb9896c78baa74
-timeCreated: 1454664825
-licenseType: Store
+guid: 73f602443e259df4cb779d590d32c026
+timeCreated: 1511283454
+licenseType: Free
 PluginImporter:
   serializedVersion: 2
   iconMap: {}
@@ -25,7 +25,7 @@ PluginImporter:
           Exclude OSXUniversal: 1
           Exclude Win: 1
           Exclude Win64: 1
-          Exclude iOS: 1
+          Exclude iOS: 0
     data:
       first:
         Android: Android
@@ -78,6 +78,13 @@ PluginImporter:
           CPU: x86_64
     data:
       first:
+        Standalone: LinuxUniversal
+      second:
+        enabled: 0
+        settings:
+          CPU: None
+    data:
+      first:
         Standalone: OSXIntel
       second:
         enabled: 0
@@ -90,6 +97,13 @@ PluginImporter:
         enabled: 0
         settings:
           CPU: AnyCPU
+    data:
+      first:
+        Standalone: OSXUniversal
+      second:
+        enabled: 0
+        settings:
+          CPU: None
     data:
       first:
         Standalone: Win
@@ -106,18 +120,19 @@ PluginImporter:
           CPU: AnyCPU
     data:
       first:
-        iPhone: iOS
+        Windows Store Apps: WindowsStoreApps
       second:
         enabled: 0
         settings:
-          CompileFlags: 
-          FrameworkDependencies: 
+          CPU: AnyCPU
     data:
       first:
-        tvOS: tvOS
+        iPhone: iOS
       second:
         enabled: 1
-        settings: {}
+        settings:
+          CompileFlags: 
+          FrameworkDependencies: 
   userData: 
   assetBundleName: 
   assetBundleVariant: 

@@ -10,6 +10,7 @@ using Newtonsoft.Json.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
+
 public class TestSuite : UITest
 {
     public static bool MyRemoteCertificateValidationCallback(System.Object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
@@ -36,18 +37,26 @@ public class TestSuite : UITest
         return isOk;
     }
 
+    public static string Date = DateTime.Now.ToString();
+
 #if UNITY_EDITOR
-    public static string deviceModel = "Unity";
+    public static string deviceModel = "Unity_";
+    public static string AppName = "Editor_";
+
 #elif UNITY_ANDROID
-    public static string deviceModel = SystemInfo.deviceModel;
+    public static string deviceModel = SystemInfo.deviceModel + "_";
+    public static string AppName = Application.installerName + "_";
+
 #elif UNITY_IOS
-    public static string deviceModel = SystemInfo.deviceModel;
+    public static string deviceModel = SystemInfo.deviceModel + "_";
+    public static string AppName = Application.installerName + "_";
+
 #endif
 
     public static string testRunName;
 
-    public static String caseID;
-    public static String testrunID;
+    public static string caseID;
+    public static string testrunID;
 
     
 
@@ -88,9 +97,6 @@ public class TestSuite : UITest
 
         public static void SetUp()
         {
-            //Название устройства в имя тестрана
-            //Название билда в имя тестрана
-
             //Создание тестрана
             ServicePointManager.ServerCertificateValidationCallback = MyRemoteCertificateValidationCallback;
             APIClient client = new APIClient("https://qa.room8studio.com/");
@@ -99,11 +105,11 @@ public class TestSuite : UITest
 
             var data = new Dictionary<string, object>
             {
-                { "name", "Automation_Test_Run_DATE_"+ deviceModel },
+                { "name", "Automation_TestRun_"+ deviceModel + AppName + Date },
                 { "suite_id", 369 },
+                { "description", string.Format("Detailed info about build..") }
             };
 
-            Debug.Log(data);
             var jContainer =  client.SendPost("add_run/2", data);
 
             var response = client.SendGet("get_runs/2&is_completed=0").ToString();
@@ -111,7 +117,7 @@ public class TestSuite : UITest
             var array = JsonConvert.DeserializeObject<List<TestRun>>(response);
 
             var InArray = array[0];
-            testRunName = InArray.name +"_"+ deviceModel;
+            testRunName = InArray.name;
         }
 
         //Выбрать кейс выставить ему пасс
@@ -122,7 +128,7 @@ public class TestSuite : UITest
             client.User = "e.kalina@room8studio.com";
             client.Password = "TOpsexIds.wd1TuNECt7-v.Mm.hsuW8kJTCuAV2iX"; 
 
-            var response = client.SendGet("get_runs/2&is_completed=0").ToString();
+            var response = client.SendGet(@"get_runs/2&is_completed=0").ToString();
 
             var array = JsonConvert.DeserializeObject<List<TestRun>>(response);
 
@@ -136,10 +142,11 @@ public class TestSuite : UITest
                 };
                  
             JContainer jContainer1 = (JContainer)client.SendPost("add_result_for_case/" + id + "/" + caseID, data1);
+
         }
 
         //Выбрать кейс выставить ему фейл
-        public static void TestFail()
+        public static void TestFail(string actual, string expected)
         {
             ServicePointManager.ServerCertificateValidationCallback = MyRemoteCertificateValidationCallback;
             APIClient client = new APIClient("https://qa.room8studio.com/");
@@ -153,28 +160,14 @@ public class TestSuite : UITest
             var id = InArray.id;
 
             var data1 = new Dictionary<string, object>
-                {
-                    {"status_id", 5},
-                    {"comment", "NotCool"},
-                };
+            {
+                {"status_id", 5},
+                {"comment", string.Format("Actual Result: {0} \nExpected Resul:{1}", actual, expected)}
+            };
 
             JContainer jContainer1 = (JContainer)client.SendPost("add_result_for_case/" + id + "/" + caseID, data1);
+
         }
-
-        //public static void TestRailCheck()
-        //{
-        //    ServicePointManager.ServerCertificateValidationCallback = MyRemoteCertificateValidationCallback;
-        //    APIClient client = new APIClient("https://qa.room8studio.com/");
-        //    client.User = "e.kalina@room8studio.com";
-        //    client.Password = "TOpsexIds.wd1TuNECt7-v.Mm.hsuW8kJTCuAV2iX";
-
-        //    var response = client.SendGet("get_runs/2&is_completed=0").ToString();
-
-        //    var array = JsonConvert.DeserializeObject<List<TestRun>>(response);
-
-        //    var InArray = array[0];
-        //    testRunName = InArray.name;
-        //}
     }
 
     [UISetUp]
@@ -187,8 +180,8 @@ public class TestSuite : UITest
 #elif UNITY_IOS
         yield return LoadScene("ModeSelector");
 #endif
+        Debug.Log(deviceModel + AppName + Date);
     }
-
 
     private static int GetResult(string opName, int first, int second)
     {
@@ -207,8 +200,6 @@ public class TestSuite : UITest
         }
     }
 
-
-
     [UITest]
     public IEnumerable ApiCheck()
     {
@@ -218,13 +209,15 @@ public class TestSuite : UITest
 
         RequestsToTestRail.SetUp();
 
-        if (testRunName == "Automation Test Run 20.11")
+        var expected = "Automation_TestRun_" + deviceModel + AppName + Date;
+
+        if (testRunName == expected)
         {
             RequestsToTestRail.TestPass();
         }
         else
         {
-            RequestsToTestRail.TestFail();
+            RequestsToTestRail.TestFail(testRunName, expected);
         }
 
         yield return null;
@@ -246,7 +239,7 @@ public class TestSuite : UITest
         }
         else
         {
-            RequestsToTestRail.TestFail();
+            RequestsToTestRail.TestFail(opName, "plus");
         }
 
         yield return null;
@@ -268,7 +261,7 @@ public class TestSuite : UITest
         }
         else
         {
-            RequestsToTestRail.TestFail();
+            RequestsToTestRail.TestFail(opName, "minus");
         }
 
         yield return null;
@@ -290,7 +283,7 @@ public class TestSuite : UITest
         }
         else
         {
-            RequestsToTestRail.TestFail();
+            RequestsToTestRail.TestFail(opName, "multiply");
         }
 
         yield return null;
@@ -312,7 +305,7 @@ public class TestSuite : UITest
         }
         else
         {
-            RequestsToTestRail.TestFail();
+            RequestsToTestRail.TestFail(opName, "divide");
         }
 
         yield return null;
@@ -360,13 +353,13 @@ public class TestSuite : UITest
         var ScoreFind = GameObject.FindGameObjectWithTag("Score").GetComponent<Text>().text;
         int Score = int.Parse(ScoreFind);
 
-        if (Score == 1)
+        if (Score.ToString() == "1")
         {
             RequestsToTestRail.TestPass();
         }
         else
         {
-            RequestsToTestRail.TestFail();
+            RequestsToTestRail.TestFail(Score.ToString(), "1");
         }
     }
 
@@ -417,7 +410,7 @@ public class TestSuite : UITest
         }
         else
         {
-            RequestsToTestRail.TestFail();
+            RequestsToTestRail.TestFail(Score.ToString(), "2");
         }
     }
 
@@ -468,7 +461,7 @@ public class TestSuite : UITest
         }
         else
         {
-            RequestsToTestRail.TestFail();
+            RequestsToTestRail.TestFail(Score.ToString(), "3");
         }
     }
 
@@ -519,7 +512,7 @@ public class TestSuite : UITest
         }
         else
         {
-            RequestsToTestRail.TestFail();
+            RequestsToTestRail.TestFail(Score.ToString(), "4");
         }
     }
 
@@ -570,7 +563,7 @@ public class TestSuite : UITest
         }
         else
         {
-            RequestsToTestRail.TestFail();
+            RequestsToTestRail.TestFail(Score.ToString(), "5");
         }
     }
 
@@ -633,7 +626,7 @@ public class TestSuite : UITest
         }
         else
         {
-            RequestsToTestRail.TestFail();
+            RequestsToTestRail.TestFail(Score.ToString(), "99");
         }
     }
 
@@ -697,7 +690,7 @@ public class TestSuite : UITest
         }
         else
         {
-            RequestsToTestRail.TestFail();
+            RequestsToTestRail.TestFail(Score.ToString(), "199");
         }
     }
 
@@ -761,7 +754,7 @@ public class TestSuite : UITest
         }
         else
         {
-            RequestsToTestRail.TestFail();
+            RequestsToTestRail.TestFail(Score.ToString(), "299");
         }
     }
 
@@ -825,7 +818,7 @@ public class TestSuite : UITest
         }
         else
         {
-            RequestsToTestRail.TestFail();
+            RequestsToTestRail.TestFail(Score.ToString(), "399");
         }
     }
 
@@ -889,7 +882,7 @@ public class TestSuite : UITest
         }
         else
         {
-            RequestsToTestRail.TestFail();
+            RequestsToTestRail.TestFail(Score.ToString(), "499");
         }
     }
 }
