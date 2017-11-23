@@ -45,11 +45,11 @@ public class TestSuite : UITest
 
 #elif UNITY_ANDROID
     public static string deviceModel = SystemInfo.deviceModel + "_";
-    public static string AppName = Application.installerName + "_";
+    public static string AppName = Application.productName + "_";
 
 #elif UNITY_IOS
     public static string deviceModel = SystemInfo.deviceModel + "_";
-    public static string AppName = Application.installerName + "_";
+    public static string AppName = Application.productName + "_";
 
 #endif
 
@@ -105,7 +105,7 @@ public class TestSuite : UITest
 
             var data = new Dictionary<string, object>
             {
-                { "name", "Automation_TestRun_"+ deviceModel + AppName + Date },
+                { "name", "Automation_TestRun_" + AppName + deviceModel + Date },
                 { "suite_id", 369 },
                 { "description", string.Format("Detailed info about build..") }
             };
@@ -162,7 +162,7 @@ public class TestSuite : UITest
             var data1 = new Dictionary<string, object>
             {
                 {"status_id", 5},
-                {"comment", string.Format("Actual Result: {0} \nExpected Resul:{1}", actual, expected)}
+                {"comment", string.Format("Actual Result: {0} \nExpected Result: {1}", actual, expected)}
             };
 
             JContainer jContainer1 = (JContainer)client.SendPost("add_result_for_case/" + id + "/" + caseID, data1);
@@ -180,7 +180,7 @@ public class TestSuite : UITest
 #elif UNITY_IOS
         yield return LoadScene("ModeSelector");
 #endif
-        Debug.Log(deviceModel + AppName + Date);
+        Debug.Log(AppName + deviceModel + Date);
     }
 
     private static int GetResult(string opName, int first, int second)
@@ -209,7 +209,7 @@ public class TestSuite : UITest
 
         RequestsToTestRail.SetUp();
 
-        var expected = "Automation_TestRun_" + deviceModel + AppName + Date;
+        var expected = "Automation_TestRun_" + AppName + deviceModel + Date;
 
         if (testRunName == expected)
         {
