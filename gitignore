@@ -1,0 +1,44 @@
+# =============== #
+# Unity generated #
+# =============== #
+[Tt]emp/
+[Oo]bj/
+[Bb]uild
+[Ll]ibrary/
+sysinfo.txt
+*.stackdump
+*.apk
+ 
+# ===================================== #
+# Visual Studio / MonoDevelop generated #
+# ===================================== #
+[Ee]xported[Oo]bj/
+.vs/
+/*.userprefs
+/*.csproj
+/*.pidb
+/*.suo
+/*.sln*
+/*.user
+/*.unityproj
+/*.booproj
+ 
+# ============ #
+# OS generated #
+# ============ #
+.DS_Store*
+._*
+.Spotlight-V100
+.Trashes
+Icon?
+ehthumbs.db
+[Tt]humbs.db
+CubeTower3D.rar
+Draw puzzle 17 03 (1).psd
+Levelmap 1 - 5.psd
+Assets/Sprites/Thumbs.db.meta
+Assets/Sprites/UI/HUD/Thumbs.db.meta
+Assets/Sprites/UI/Thumbs.db.meta
+Assets/Thumbs.db.meta
+Assets/Sprites/UI/Tutorial/Thumbs.db.meta
+Assets/StreamingAssets/Thumbs.db.meta

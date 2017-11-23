@@ -1,23 +1,25 @@
 ﻿using UnityEngine;
 using System.Collections;
-using UnityEngine.Assertions;
-/*
+using NUnit.Framework;
+using UnityEngine.TestTools;
+
 public class UITestExample : UITest
 {
-    [UISetUp]
-    public IEnumerable Init()
-    {
+    MockNetworkClient mockNetworkClient;
 
-#if UNITY_EDITOR
-        yield return LoadSceneByPath("Assets/Game/Scene/ModeSelector.unity");
-#else
-        yield return LoadScene("ModeSelector");
-#endif
-    }
-    
-    [UITest]
-    public IEnumerable SecondScreenCanBeOpenedFromTheFirstOne()
+    [SetUp]
+    public void Init()
     {
+        mockNetworkClient = new MockNetworkClient();
+        // Replace the real networkClient with mock object, it will be injected later into FirstScreen component
+        DependencyInjector.ReplaceComponent<NetworkClient>(mockNetworkClient);
+    }
+
+    [UnityTest]
+    public IEnumerator SecondScreenCanBeOpenedFromTheFirstOne()
+    {        
+        yield return LoadScene("TestableGameScene");
+        
         // Wait until object with given component appears in the scene
         yield return WaitFor(new ObjectAppeared<FirstScreen>());
 
@@ -35,9 +37,11 @@ public class UITestExample : UITest
         yield return WaitFor(new ObjectDisappeared<SecondScreen>());
     }
 
-    [UITest]
-    public IEnumerable SuccessfulNetworkResponseIsDisplayedOnTheFirstScreen()
+    [UnityTest]
+    public IEnumerator SuccessfulNetworkResponseIsDisplayedOnTheFirstScreen()
     {
+        yield return LoadScene("TestableGameScene");
+        
         yield return WaitFor(new ObjectAppeared<FirstScreen>());
 
         // Predefine the mocked server response
@@ -52,119 +56,18 @@ public class UITestExample : UITest
         Assert.AreEqual(mockNetworkClient.mockRequest, "i_need_data");
     }
 
-    [UITest]
-    public IEnumerable FailingBoolCondition()
+    [UnityTest]
+    public IEnumerator FailingBoolCondition()
     {
+        yield return LoadScene("TestableGameScene");
+        
         yield return WaitFor(new ObjectAppeared("FirstScreen"));
-        var s = FindObjectOfType<FirstScreen>();
+        var s = Object.FindObjectOfType<FirstScreen>();
 
         // Wait until FirstScene component is disabled, this line will fail by timeout
         // BoolCondition can be used to wait until any condition is satisfied
         yield return WaitFor(new BoolCondition(() => !s.enabled));
     }
-    
-    
-    [UITest]
-    public IEnumerable WaitForGameEnd()
-    {
-        var pause = new WaitForSeconds(5.5f);
-        yield return WaitFor(new ObjectAppeared("Canvas"));
-
-        yield return Press("AdditionButton");
-        yield return pause;
-
-        yield return AssertLabel("ScoreBackImage/ScoreText", "SCORE");
-
-    }
-
-    [UITest]
-    public IEnumerable GameStart()
-    {
-        var pause = new WaitForSeconds(4.0f);
-        yield return WaitFor(new ObjectAppeared("Canvas"));
-
-        yield return Press("AdditionButton");
-        yield return pause;
-
-        yield return AssertLabel("ScoreImage/ScoreText", "0");
-
-    }
-
-    [UITest]
-    public IEnumerable GameWithPlus()
-    {
-        var pause = new WaitForSeconds(0.5f);
-        yield return WaitFor(new ObjectAppeared("Canvas"));
-
-        yield return Press("AdditionButton");
-        yield return pause;
-
-        yield return AssertLabel("MathsSymbol/Pluss", "+");
-
-    }
-    
-
-   [UITest]
-    public IEnumerable GameWithMinus()
-    {
-        var pause = new WaitForSeconds(0.5f);
-        yield return WaitFor(new ObjectAppeared("Canvas"));
-
-        yield return Press("SubtractionButton");
-        yield return pause;
-
-        yield return AssertLabel("MathsSymbol/Minuss", "-");
-
-    }
-    
-    [UITest]
-    public IEnumerable GameWithMultiplication()
-    {
-        var pause = new WaitForSeconds(1.5f);
-        yield return WaitFor(new ObjectAppeared("Canvas"));
-
-        yield return Press("MultiplicationButton");
-        yield return pause;
-
-        yield return AssertLabel("MathsSymbol/Multiplication", "*");
-
-    }
-
-    [UITest]
-    public IEnumerable GameWithDivision()
-    {
-        var pause = new WaitForSeconds(1.5f);
-        yield return WaitFor(new ObjectAppeared("Canvas"));
-
-        yield return Press("MultiplicationButton");
-        yield return pause;
-
-        yield return AssertLabel("MathsSymbol/Division", "/");
-
-    }
-
-    [UITest]
-    public IEnumerable MixButton()
-    {
-       
-        var pause = new WaitForSeconds(1f);
-        yield return WaitFor(new ObjectAppeared("Canvas"));
-        yield return pause;
-        yield return AssertLabel("Canvas/Mixes", "Miks");
-
-    }
-
-    [UITest]
-    public IEnumerable END()
-    {
-        var pause = new WaitForSeconds(1.5f);
-        yield return WaitFor(new ObjectAppeared("Canvas"));
-
-        yield return pause;
-
-    }
-
-    
-
 }
-*/
+
+ 

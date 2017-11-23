@@ -27,13 +27,17 @@ public class MainMenuController : MonoBehaviour {
 
     private AudioSource clickSound;
 
-    // Use this for initialization
-    void Start ()
+
+
+
+	// Use this for initialization
+	void Start ()
     {
         //at start we check the music status and the assign the sprite to the music button and vol to game
         if (GameManager.singleton.isMusicOn)
         {
-            
+            AudioListener.volume = 1;
+            musicBtn.image.sprite = musicBtnSprite[1];
         }
         else
         {
