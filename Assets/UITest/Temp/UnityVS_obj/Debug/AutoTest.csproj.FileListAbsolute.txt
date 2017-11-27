@@ -1,2 +1,0 @@
-C:\AutoTest\Assets\UITest\Temp\UnityVS_obj\Debug\AutoTest.csprojResolveAssemblyReference.cache
-C:\AutoTest\Assets\UITest\Temp\UnityVS_obj\Debug\AutoTest.csproj.CoreCompileInputs.cache
